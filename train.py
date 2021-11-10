@@ -63,7 +63,7 @@ def create_env(config):
 
 # For stopping a learner for successful training
 def stop_check(trial_id, result):
-    return result["episode_reward_mean"] >= 1900.0
+    return result["episode_reward_mean"] >= 2000.0
 
 @ray.remote
 class EpisodeCounter:
