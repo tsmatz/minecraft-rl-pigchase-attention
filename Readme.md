@@ -166,7 +166,7 @@ See "[Run Reinforcement Learning on Ray Cluster](https://tsmatz.wordpress.com/20
 This repository also includes pre-trained checkpoint (```checkpoint/checkpoint-XXX```) in this repo.<br>
 You can then check the result soon.
 
-Run the following command to run the pre-trained agent.
+Run the following command to run the pre-trained agent, also **on monitor-attached shell** (such as, LXTerminal).
 
 ```
 cd minecraft-rl-pigchase-attention
