@@ -10,8 +10,8 @@ This example uses [Ray and RLlib](https://docs.ray.io/en/latest/rllib.html) for 
 
 This provides instructions for running this example.
 
-In this example, I have used Ubuntu 18.04 LTS in Microsoft Azure.<br>
-This example used the real monitor, in which Minecraft UI will be shown. (Please configure extra display settings, if you use a virtual monitor.)
+In this example, I have used **Ubuntu 18.04 LTS** in Microsoft Azure.<br>
+This example (the following instruction) uses the real monitor, in which Minecraft UI will be shown. (Please configure extra display settings, if you run on a virtual monitor.)
 
 ## 1. Setup NVIDIA GPU software (drivers and libraries) ##
 
