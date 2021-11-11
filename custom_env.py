@@ -114,7 +114,6 @@ class MyCustomGameEnv(gym.Env):
                 'test1')
         except:
             tb = traceback.format_exc()
-            self._log("ERR : mission start err : {}".format(tb))
             self._kill_instance()
             time.sleep(3)
             self._start_instance()
@@ -153,7 +152,6 @@ class MyCustomGameEnv(gym.Env):
         turn degree is between -15 and 15, and positive number is right-turn.
         """
         if math.isnan(action):
-            self._log("ERR : action is Nan")
             action = 0
         turn_value = int(action * 15.0 / 0.15)
         self.agent_host.sendCommand("moveMouse {} 0".format(turn_value))
