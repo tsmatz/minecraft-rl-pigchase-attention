@@ -155,7 +155,7 @@ cd minecraft-rl-pigchase-attention
 python3 train.py --num_gpus 1
 ```
 
->> Note : For the first time to run, all dependencies for building Minecraft (including Project Malmo's mod) are built and installed, and it will then take a while to start. Please be patient to wait.
+> Note : For the first time to run, all dependencies for building Minecraft (including Project Malmo's mod) are built and installed, and it will then take a while to start. Please be patient to wait.
 
 When you start the training code (```train.py```), you will see the agent's view in 160 x 120 Minecraft's screen. This frame pixels are then used by agent to train.
 
