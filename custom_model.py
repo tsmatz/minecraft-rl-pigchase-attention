@@ -29,15 +29,6 @@ class MyCustomVisionNetwork(TFModelV2):
         super(MyCustomVisionNetwork, self).__init__(obs_space, action_space,
             num_outputs, model_config, name)
 
-        # Note : num_outputs is total 7 as follows.
-        # Box action space is operated with diag gaussian in action distribution,
-        # then it will be interpreted into mean and std (2 values).
-        #
-        #   5 - gym.spaces.Discrete(5) # none, stop, move, run, attack (logits)
-        #   2 - gym.spaces.Box         # mean and std for turn degree (mean, log std)
-        #
-        # Loss is evaluated by sum of logp in these 2 distributions by built-in action dist.
-
         ##########
         # Prepare inputs
         ##########
@@ -45,9 +36,6 @@ class MyCustomVisionNetwork(TFModelV2):
         input_obs = tf.keras.layers.Input(
             shape=(120, 160, OBS_STACK_SIZE),
             name="observations")
-        #input_obs = tf.keras.layers.Reshape(
-        #    (84, 84, OBS_STACK_SIZE),
-        #    input_shape=(FLAT_FRAME_SIZE,))(input_obs)
 
         ##########
         # Build action model
