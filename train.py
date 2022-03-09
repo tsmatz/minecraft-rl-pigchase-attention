@@ -48,7 +48,6 @@ def create_env(config):
     shape = config["shape"]
     reward_damage = config["reward_damage"]
     reward_action = config["reward_action"]
-    reward_for_goal = config["reward_for_goal"]
     env = MyCustomGameEnv(
         xml=xml,
         world_dat=world_dat,
@@ -57,8 +56,7 @@ def create_env(config):
         millisec_per_tick=millisec_per_tick,
         mob_tag_func=_get_pig_tag,
         reward_damage=reward_damage,
-        reward_action=reward_action,
-        reward_for_goal=reward_for_goal)
+        reward_action=reward_action)
     return env
 
 # For stopping a learner for successful training
@@ -107,7 +105,6 @@ if __name__ == '__main__':
                 "millisec_per_tick": 20,
                 "reward_damage": 80.0,
                 "reward_action": -0.10,
-                "reward_for_goal": 480.0,
             },
             "model": {
                 "custom_model": "my_game_model",
@@ -118,7 +115,6 @@ if __name__ == '__main__':
                 "attention_num_heads": 2,
                 "attention_memory_inference": 100,
                 "attention_memory_training": 50,
-                "vf_share_layers": True,
                 "attention_use_n_prev_actions": 0,
                 "attention_use_n_prev_rewards": 0,
             },

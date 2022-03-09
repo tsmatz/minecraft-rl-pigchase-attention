@@ -50,7 +50,6 @@ def create_env(config):
     shape = config["shape"]
     reward_damage = config["reward_damage"]
     reward_action = config["reward_action"]
-    reward_for_goal = config["reward_for_goal"]
     env = MyCustomGameEnv(
         xml=xml,
         world_dat=world_dat,
@@ -59,8 +58,7 @@ def create_env(config):
         millisec_per_tick=millisec_per_tick,
         mob_tag_func=_get_pig_tag,
         reward_damage=reward_damage,
-        reward_action=reward_action,
-        reward_for_goal=reward_for_goal)
+        reward_action=reward_action)
     return env
 
 if __name__ == "__main__":
@@ -73,7 +71,7 @@ if __name__ == "__main__":
         type=str)
     parser.add_argument('--checkpoint_file',
         required=False,
-        default="./checkpoint/checkpoint-608",
+        default="./checkpoint/checkpoint-389",
         help="file path for trained checkpoint",
         type=str)
     parser.add_argument('--game_time_millisec',
@@ -108,19 +106,16 @@ if __name__ == "__main__":
             "millisec_per_tick": 50,
             "reward_damage": 80.0,
             "reward_action": -0.05,
-            "reward_for_goal": 480.0,
         },
         "model": {
             "custom_model": "my_game_model",
             "custom_action_dist": "my_game_dist",
-            "conv_filters": [],
             "use_attention": True,
             "attention_num_transformer_units": 1,
             "attention_dim": 64,
             "attention_num_heads": 2,
             "attention_memory_inference": 100,
             "attention_memory_training": 50,
-            "vf_share_layers": False,
             "attention_use_n_prev_actions": 0,
             "attention_use_n_prev_rewards": 0,
         },

@@ -18,7 +18,6 @@ import pathlib
 import subprocess
 import signal
 import socket
-import traceback
 
 CLIENT_PORT = 9000                  # Malmo port
 TIME_WAIT = 0.05                    # Time to wait for retreiving world state (when MsPerTick=20)
@@ -51,8 +50,6 @@ class MyCustomGameEnv(gym.Env):
         Positive reward for damaging mob.
     reward_action : float
         Negative reward for each action processing. (action penalty)
-    reward_for_goal : float
-        When the cumulative rewards reaches this value, the game will be ended.
     """
     def __init__(self,
         xml,
@@ -62,8 +59,7 @@ class MyCustomGameEnv(gym.Env):
         millisec_per_tick=50,
         mob_tag_func=None,
         reward_damage=80.0,
-        reward_action=-0.05,
-        reward_for_goal=480.0):
+        reward_action=-0.05):
 
         # Set up gym.Env
         super(MyCustomGameEnv, self).__init__()
@@ -77,7 +73,6 @@ class MyCustomGameEnv(gym.Env):
         self.millisec_per_tick = millisec_per_tick
         self.reward_damage = reward_damage
         self.reward_action = reward_action
-        self.reward_for_goal = reward_for_goal
         self.mob_tag_func = mob_tag_func
         self.proc = None
         # Launch Minecraft client
@@ -113,7 +108,6 @@ class MyCustomGameEnv(gym.Env):
                 0,
                 'test1')
         except:
-            tb = traceback.format_exc()
             self._kill_instance()
             time.sleep(3)
             self._start_instance()
