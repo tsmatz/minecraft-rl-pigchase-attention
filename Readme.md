@@ -158,6 +158,8 @@ python3 train.py --num_gpus 1
 
 > Note : For the first time to run, all dependencies for building Minecraft (including Project Malmo's mod) are built and installed, and it will then take a while to start. Please be patient to wait.
 
+> Note : For troubleshooting in building Minecraft or using monitor in Minecraft, see [here](https://github.com/tsmatz/minecraft-rl-example).
+
 When you start the training code (```train.py```), you will see the agent's view in 160 x 120 Minecraft's screen. This frame pixels are then used by agent to train.
 
 See "[Run Reinforcement Learning on Ray Cluster](https://tsmatz.wordpress.com/2021/10/08/rllib-reinforcement-learning-multiple-machines-ray-cluster/)", when you run on multiple workers in Ray cluster to speed up.
