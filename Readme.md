@@ -156,9 +156,13 @@ cd minecraft-rl-pigchase-attention
 python3 train.py --num_gpus 1
 ```
 
-> Note : For the first time to run, all dependencies for building Minecraft (including Project Malmo's mod) are built and installed, and it will then take a while to start. Please be patient to wait.
+> Note : For the first time to run, all dependencies for building Minecraft (including Project Malmo's mod) are built and installed, and it will then take a while to start. Please be patient to wait.<br>
+> When you have troubles (errors) for the download in minecraft compilation, please download [here](https://1drv.ms/u/s!AuopXnMb-AqcgdZkjmtSVg3VQL5TEQ?e=w4M4r7) and use successful cache as follows.<br>
+> ```mv ~/.gradle/caches/minecraft ~/.gradle/caches/minecraft-org```<br>
+> ```sudo apt-get install zip unzip```<br>
+> ```unzip gradle_caches_minecraft.zip -d ~/.gradle/caches```
 
-> Note : For troubleshooting in building Minecraft or using monitor in Minecraft, see [here](https://github.com/tsmatz/minecraft-rl-example).
+> Note : For other troubleshooting in building Minecraft or using monitor in Minecraft, see [here](https://github.com/tsmatz/minecraft-rl-example).
 
 When you start the training code (```train.py```), you will see the agent's view in 160 x 120 Minecraft's screen. This frame pixels are then used by agent to train.
 
