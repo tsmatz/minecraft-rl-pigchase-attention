@@ -10,14 +10,14 @@ This example uses [Ray and RLlib](https://docs.ray.io/en/latest/rllib.html) for 
 
 This provides instructions for running this example.
 
-In this example, I have used **Ubuntu Server 18.04 LTS** in Microsoft Azure.<br>
+In this example, I have used **Ubuntu Server 20.04 LTS** in Microsoft Azure.<br>
 This example (the following instruction) uses the real monitor, in which Minecraft UI will be shown. (Please configure extra display settings, if you run on a virtual monitor.)
 
 ## 1. Setup NVIDIA GPU software (drivers and libraries) ##
 
-> Note : When you just run the trained agent without training, GPU-utilized machine won't be needed and you can then skip settings in this section. (Please make sure to install ```tensorflow==2.4.1``` on CPUs, instead of ```tensorflow-gpu==2.4.1```.)
+> Note : When you just run the trained agent without training, GPU-utilized machine won't necessarily be needed and you can then skip settings in this section. (Please make sure to install ```tensorflow==2.4.1``` on CPUs, instead of ```tensorflow-gpu==2.4.1```.)
 
-In this example, a large model (AttentionNet with ConvNet) will be used for training a RL agent.<br>
+In this example, a large model (multi-layered transformer) is used for training a RL agent.<br>
 In order to speed up training, use GPU-utilized machine.
 
 In this settings, we'll use CUDA version 11.0 and cuDNN versioin 8.0, because I will use TensorFlow 2.4.1.<br>
@@ -27,8 +27,10 @@ First of all, install ```gcc``` and ```make``` tools for building utilities.
 
 ```
 sudo apt-get update
-sudo apt install -y gcc
-sudo apt-get install -y make
+sudo apt-get install build-essential
+# # or install individual packages as follows
+# sudo apt install -y gcc
+# sudo apt-get install -y make
 ```
 
 Install CUDA driver by running the following command. (After installation, make sure to be correctly installed by running ```nvidia-smi``` command.)
@@ -47,86 +49,133 @@ sudo dpkg -i libcudnn8-dev_8.0.5.39-1+cuda11.0_amd64.deb
 sudo dpkg -i libcudnn8-samples_8.0.5.39-1+cuda11.0_amd64.deb
 ```
 
-## 2. Setup prerequisite software in Ubuntu ##
+## 2. Download and build Malmo ##
 
-Make sure that Python 3 is installed on Ubuntu. (If not, please install Python 3 on Ubuntu.)
+To install Malmo, you can use pre-built binary or build Malmo from source code.<br>
+Here we download source code and build Malmo in Ubuntu 20.04.
+
+The following is the entire installation script, but see [here](https://github.com/tsmatz/minecraft-rl-example) for details about steps to compile Malmo in Ubuntu 20.04.
 
 ```
-python3 -V
+# install python 3.6
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update
+sudo apt-get install python3.6
+
+# configure to make python3 command to use python3.6
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
+sudo update-alternatives --config python3
+
+# install required components
+sudo apt-get install \
+  build-essential \
+  libpython3.6-dev \
+  openjdk-8-jdk \
+  swig \
+  doxygen \
+  xsltproc \
+  ffmpeg \
+  python-tk \
+  python-imaging-tk \
+  zlib1g-dev
+
+# set environment for Java
+echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ~/.bashrc
+source ~/.bashrc
+
+# update certificates
+sudo update-ca-certificates -f
+
+# download and build cmake
+mkdir ~/cmake
+cd ~/cmake
+wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz
+tar xvf cmake-3.11.0.tar.gz
+cd cmake-3.11.0
+./bootstrap
+make -j4
+sudo make install
+cd
+
+# download and build boost
+mkdir ~/boost
+cd ~/boost
+wget http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz
+tar xvf boost_1_66_0.tar.gz
+cd boost_1_66_0
+./bootstrap.sh --with-python=/usr/bin/python3.6 --prefix=.
+./b2 link=static cxxflags=-fPIC install
+cd
+
+# download and install Malmo
+git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform
+wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas
+echo -e "export MALMO_XSD_PATH=$PWD/MalmoPlatform/Schemas" >> ~/.bashrc
+source ~/.bashrc
+cd ~/MalmoPlatform
+mkdir build
+cd build
+cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_66_0/include -DBOOST_PYTHON_NAME=python3 -DCMAKE_BUILD_TYPE=Release ..
+make install
+cd
+
+# after installation, configure to make python3 command to use python3.8 (default in Ubuntu 20.04)
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 2
+sudo update-alternatives --config python3
 ```
 
-Install and upgrade pip3 as follows.
+## 3. Install required packages ##
+
+Install required packages with dependencies (such as, TensorFlow, Ray framework with RLlib, etc) as follows.<br>
+In this example, I have used TensorFlow for RLlib backend, but you can also use PyTorch for running RLlib.
+
+First set up PIP in python3.6.
 
 ```
 sudo apt-get update
 sudo apt-get install -y python3-pip
 sudo -H pip3 install --upgrade pip
+sudo apt-get install python3.6-distutils
 ```
 
-Install X remote desktop components, and start RDP service.<br>
-After this settings, restart your computer.
+Now let's install python packages in python 3.6.
+
+```
+python3.6 -m pip install \
+  gym==0.21.0 \
+  lxml \
+  numpy \
+  pillow \
+  tensorflow-gpu==2.4.1 \
+  gpustat==0.6.0 \
+  ray[default]==1.6.0 \
+  dm-tree==0.1.7 \
+  ray[rllib]==1.6.0 \
+  ray[tune]==1.6.0 \
+  attrs==19.1.0 \
+  pandas
+```
+
+## 4. Configure desktop environment ##
+
+Malmo is built on the modded Minecraft.<br>
+It then needs monitor-attached environment, and here I configure X remote desktop environment and RDP service as follows.
 
 ```
 sudo apt-get update
-sudo apt-get install -y lxde
-sudo apt-get install -y xrdp
-/etc/init.d/xrdp start  # password is required
+# while installation, select gdm3 for default display manager
+sudo apt-get -y install xfce4
+sudo apt-get -y install xrdp
+sudo systemctl enable xrdp
+echo xfce4-session >~/.xsession
+sudo service xrdp restart
 ```
 
-Allow (Open) inbound port 3389 (default RDP port) in network settings to enable your client to connect.
+> Note : Run ```echo xfce4-session >~/.xsession``` for all users who runs the program.
 
-> Note : When you want to join into the same game with your own Minecraft client remotely, open Minecraft port 25565 too.
+Allow (Open) inbound port 3389 (which is default RDP port's number) in network settings to enable your client to connect to your server.
 
-Install and setup Java (JDK) as follows. (JDK is needed to build Minecraft runtime.)
-
-```
-sudo apt-get install -y openjdk-8-jdk
-echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ~/.bashrc
-source ~/.bashrc
-```
-
-## 3. Install and Setup Project Malmo ##
-
-Install Project Malmo binaries, which has a modded Minecraft built by Microsoft Research.
-
-```
-# install prerequisite packages
-pip3 install gym==0.21.0 lxml numpy pillow
-# install malmo
-pip3 install --index-url https://test.pypi.org/simple/ malmo==0.36.0
-```
-
-Expand Malmo bootstrap files as follows.<br>
-All files will be deployed on ```./MalmoPython``` folder.
-
-```
-sudo apt-get install -y git
-python3 -c "import malmo.minecraftbootstrap; malmo.minecraftbootstrap.download();"
-```
-
-Set ```MALMO_XSD_PATH``` environment variable as follows.
-
-```
-echo -e "export MALMO_XSD_PATH=$PWD/MalmoPlatform/Schemas" >> ~/.bashrc
-source ~/.bashrc
-```
-
-Set the Malmo version in ```./MalmoPlatform/Minecraft/src/main/resources/version.properties``` file by running the following command. (If it's already set, there's nothing to do.)
-
-```
-cd MalmoPlatform/Minecraft
-(echo -n "malmomod.version=" && cat ../VERSION) > ./src/main/resources/version.properties
-cd ../..
-```
-
-## 4. Install Ray and RLlib framework ##
-
-Install Ray framework with RLlib (which is used to run RL agent) with dependencies as follows.<br>
-In this example, I have used TensorFlow for RLlib backend, but you can also use PyTorch backend.
-
-```
-pip3 install tensorflow-gpu==2.4.1 ray[default]==1.6.0 ray[rllib]==1.6.0 ray[tune]==1.6.0 attrs==19.1.0 pandas
-```
+> Note : When you want to join into the same game with your own Minecraft client remotely, please open Minecraft port 25565 too.
 
 ## 5. Clone this repository ##
 
@@ -143,23 +192,27 @@ Expand ```flat_world.zip``` (world data) in repository folder.
 unzip flat_world.zip -d flat_world
 ```
 
+Copy the generated python package ```~/MalmoPlatform/build/install/Python_Examples/MalmoPython.so``` in current folder as follows.
+
+```
+cp ~/MalmoPlatform/build/install/Python_Examples/MalmoPython.so .
+```
+
 ## 6. Train an agent (Deep Reinforcement Learning) ##
 
 Let's start training.
 
-Login Ubuntu using remote desktop client and run the following commands **on monitor-attached shell** (such as, LXTerminal), because it will launch Minecraft UI.
-
-Now, run the training script (```train.py```) as follows.<br>
+Login Ubuntu using remote desktop client and run the following commands **on monitor-attached shell** (such as, LXTerminal), because it will need to launch Minecraft UI.<br>
+Now, run the training script (```train.py```) as follows.
 
 ```
 cd minecraft-rl-pigchase-attention
-python3 train.py --num_gpus 1
+python3.6 train.py --num_gpus 1
 ```
 
 > Note : For the first time to run, all dependencies for building Minecraft (including Project Malmo's mod) are built and installed, and it will then take a while to start. Please be patient to wait.<br>
-> When you have troubles (errors) for the download in minecraft compilation, please download [here](https://1drv.ms/u/s!AuopXnMb-AqcgdZkjmtSVg3VQL5TEQ?e=w4M4r7) and use successful cache as follows.<br>
+> When you have troubles (errors) for downloading resources in minecraft compilation, please download [here](https://1drv.ms/u/s!AuopXnMb-AqcgdZkjmtSVg3VQL5TEQ?e=w4M4r7) and run the following command to use successful gradle cache.<br>
 > ```mv ~/.gradle/caches/minecraft ~/.gradle/caches/minecraft-org```<br>
-> ```sudo apt-get install zip unzip```<br>
 > ```unzip gradle_caches_minecraft.zip -d ~/.gradle/caches```
 
 > Note : For other troubleshooting in building Minecraft or using monitor in Minecraft, see [here](https://github.com/tsmatz/minecraft-rl-example).
@@ -177,11 +230,11 @@ Run the following command to run the pre-trained agent, also **on monitor-attach
 
 ```
 cd minecraft-rl-pigchase-attention
-python3 run_agent.py
+python3.6 run_agent.py
 ```
 
 If you have your own trained checkpoint, you can also run your trained agent as follows.
 
 ```
-python3 run_agent.py --checkpoint_file YOUR_OWN_CHECKPOINT_FILE_PATH
+python3.6 run_agent.py --checkpoint_file YOUR_OWN_CHECKPOINT_FILE_PATH
 ```
