@@ -148,6 +148,9 @@ python3.6 -m pip install \
   pillow \
   tensorflow-gpu==2.4.1 \
   gpustat==0.6.0 \
+  aiohttp==3.7.4 \
+  prometheus-client==0.8.0 \
+  redis==3.5.3 \
   ray[default]==1.6.0 \
   dm-tree==0.1.7 \
   attrs==19.1.0 \
