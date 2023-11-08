@@ -54,7 +54,9 @@ sudo dpkg -i libcudnn8-samples_8.0.5.39-1+cuda11.0_amd64.deb
 To install Malmo, you can use pre-built binary or build Malmo from source code.<br>
 Here we download source code and build Malmo in Ubuntu 20.04.
 
-The following is the entire installation script, but see [here](https://github.com/tsmatz/minecraft-rl-example) for details about steps to compile Malmo in Ubuntu 20.04.
+The following is the entire installation script.<br>
+In this example, we use Python version 3.6, because I have trained checkpoint in this example with this version. (You can also build and run Malmo on Python 3.8. See [here](https://tsmatz.wordpress.com/2020/07/09/minerl-and-malmo-reinforcement-learning-in-minecraft/).)<br>
+See [here](https://github.com/tsmatz/minecraft-rl-example) for details about steps to compile Malmo.
 
 ```
 # install python 3.6
@@ -123,6 +125,8 @@ cd
 sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 2
 sudo update-alternatives --config python3
 ```
+
+> Note : In building Malmo, it might show errors for downloading assets from ```http://resources.download.minecraft.net/``` (not ```https://```), but you can ignore.
 
 ## 3. Install required packages ##
 
@@ -215,7 +219,7 @@ cd minecraft-rl-pigchase-attention
 python3.6 train.py --num_gpus 1
 ```
 
-> Note : For the first time to run, all dependencies for building Minecraft (including Project Malmo's mod) are built and installed, and it will then take a while to start. Please be patient to wait.<br>
+> Note : It might show errors for downloading assets from ```http://resources.download.minecraft.net/``` (not ```https://```), but you can ignore.<br>
 > When you have troubles (errors) for downloading resources in minecraft compilation, please download [here](https://1drv.ms/u/s!AuopXnMb-AqcgdZkjmtSVg3VQL5TEQ?e=w4M4r7) and run the following command to use successful gradle cache.<br>
 > ```mv ~/.gradle/caches/minecraft ~/.gradle/caches/minecraft-org```<br>
 > ```unzip gradle_caches_minecraft.zip -d ~/.gradle/caches```
