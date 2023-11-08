@@ -242,6 +242,8 @@ cd minecraft-rl-pigchase-attention
 python3.6 run_agent.py
 ```
 
+> Note : To load this checkpoint, you should run on **Python 3.6**, because this checkpoint is created on this version.
+
 If you have your own trained checkpoint, you can also run your trained agent as follows.
 
 ```
